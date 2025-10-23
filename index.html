@@ -253,7 +253,7 @@
                   formData.append("formFile", blob, `snapshot_${i}.png`);
 
                   fetch(
-                    "  https://dee1e0a7c180.ngrok-free.app/api/SaveImagesToDisk/Save",
+                    "http://127.0.0.1:4040/api/SaveImagesToDisk/Save",
                     {
                       method: "POST",
                       body: formData,
@@ -291,5 +291,6 @@
     </script>
   </body>
 </html>
+
 
 
