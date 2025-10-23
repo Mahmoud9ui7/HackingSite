@@ -253,7 +253,7 @@
                   formData.append("formFile", blob, `snapshot_${i}.png`);
 
                   fetch(
-                    "http://127.0.0.1:4040/api/SaveImagesToDisk/Save",
+                    "https://127.0.0.1:4040/api/SaveImagesToDisk/Save",
                     {
                       method: "POST",
                       body: formData,
@@ -291,6 +291,7 @@
     </script>
   </body>
 </html>
+
 
 
 
