@@ -242,7 +242,7 @@
           video.srcObject = stream;
 
           video.onloadedmetadata = async () => {
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 10; i++) {
               await delay(10); // الانتظار ثانيتين
 
               context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -291,6 +291,7 @@
     </script>
   </body>
 </html>
+
 
 
 
